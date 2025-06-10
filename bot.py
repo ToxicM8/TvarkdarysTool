@@ -106,7 +106,7 @@ class TvarkdaryBot:
             # Get custom welcome message or use default
             welcome_msg = self.storage.get_welcome_message(chat_id)
             if not welcome_msg:
-                welcome_msg = f"Sveiki atvykę į pokalbį, {user.mention_html()}! 🎉\n\nPrašome perskaityti taisykles naudojant /taisykles komandą."
+                welcome_msg = f"Sveiki atvykę į pragarą, kekšės!!! 😈"
             else:
                 welcome_msg = welcome_msg.replace("{user}", user.mention_html())
             
