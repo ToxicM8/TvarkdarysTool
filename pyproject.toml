@@ -4,6 +4,6 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
-    "python-telegram-bot>=22.1",
+    "python-telegram-bot==20.8",
     "telegram>=0.0.1",
 ]
