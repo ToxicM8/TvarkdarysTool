@@ -58,17 +58,17 @@ Pridėkite mane į savo grupę ir padarykite administratoriumi! 🚀
 • `/kvietimai` - Jūsų kvietimų statistika
 
 **Moderavimas (Tik Administratoriams):**
-• `/užblokuoti <vartotojas>` - Užblokuoti vartotoją iš grupės
-• `/išmesti <vartotojas>` - Išmesti vartotoją iš grupės
+• `/uzblokuoti <vartotojas>` - Užblokuoti vartotoją iš grupės
+• `/ismesti <vartotojas>` - Išmesti vartotoją iš grupės
 • `/atblokuoti <vartotojas>` - Atblokuoti vartotoją
 • `/nutildyti <vartotojas> [minutės]` - Nutildyti vartotoją (numatyta: 60 min)
-• `/atkurti_balsą <vartotojas>` - Atkurti vartotojo balsą
-• `/įspėti <vartotojas> [priežastis]` - Įspėti vartotoją
-• `/įspėjimai <vartotojas>` - Patikrinti vartotojo įspėjimus
+• `/atkurti_balsa <vartotojas>` - Atkurti vartotojo balsą
+• `/ispeti <vartotojas> [priežastis]` - Įspėti vartotoją
+• `/ispejimai <vartotojas>` - Patikrinti vartotojo įspėjimus
 
 **Nustatymai (Tik Administratoriams):**
 • `/nustatyti_taisykles <taisyklės>` - Nustatyti grupės taisykles
-• `/nustatyti_pasisveikinimą <žinutė>` - Nustatyti pasisveikinimo žinutę
+• `/nustatyti_pasisveikinima <žinutė>` - Nustatyti pasisveikinimo žinutę
 • `/nustatymai` - Peržiūrėti grupės nustatymus
 
 **XP Sistema:**
