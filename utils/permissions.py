@@ -45,7 +45,7 @@ def admin_required(func):
     async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not await is_admin(update, context):
             await update.message.reply_text(
-                "❌ You need to be an administrator to use this command."
+                "❌ Jūs turite būti administratorius, kad galėtumėte naudoti šią komandą."
             )
             return
         return await func(self, update, context)
@@ -57,7 +57,7 @@ def group_only(func):
     async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_chat.type == 'private':
             await update.message.reply_text(
-                "❌ This command can only be used in groups."
+                "❌ Ši komanda gali būti naudojama tik grupėse."
             )
             return
         return await func(self, update, context)
@@ -72,7 +72,7 @@ def rate_limit(storage, cooldown_seconds: int = 3):
             
             if not storage.check_command_cooldown(user_id, cooldown_seconds):
                 await update.message.reply_text(
-                    f"⏳ Please wait {cooldown_seconds} seconds before using this command again."
+                    f"⏳ Palaukite {cooldown_seconds} sekundžių prieš naudojant šią komandą dar kartą."
                 )
                 return
             

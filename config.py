@@ -22,13 +22,13 @@ class BotConfig:
         self.command_cooldown = 3  # seconds between commands
         self.max_warnings = 3  # warnings before auto-ban
         
-        # Default messages
+        # Default messages in Lithuanian
         self.default_rules = [
-            "1. Be respectful to all members",
-            "2. No spam or excessive self-promotion", 
-            "3. Keep discussions relevant to the topic",
-            "4. No hate speech or discrimination",
-            "5. Follow Telegram's Terms of Service"
+            "1. Gerbkite visus narių",
+            "2. Draudžiamas šlamštas ir per didelis savireklama", 
+            "3. Laikykitės temos diskusijose",
+            "4. Draudžiamos neapykantos kalbos ir diskriminacija",
+            "5. Laikykitės Telegram naudojimo taisyklių"
         ]
         
-        self.default_welcome = "Welcome to our community, {user}! 🎉\n\nPlease read our rules with /rules"
+        self.default_welcome = "Sveiki atvykę į mūsų bendruomenę, {user}! 🎉\n\nPrašome perskaityti taisykles naudojant /taisykles"

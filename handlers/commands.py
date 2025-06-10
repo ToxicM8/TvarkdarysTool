@@ -21,26 +21,26 @@ class CommandHandlers:
         user = update.effective_user
         
         welcome_text = f"""
-🤖 **Tvarkdarys Bot** - Telegram Moderation Assistant
+🤖 **Tvarkdarys Bot** - Telegram Moderavimo Asistentas
 
-Hello {user.first_name}! I'm here to help manage your Telegram groups.
+Sveiki {user.first_name}! Aš esu čia, kad padėčiau tvarkyti jūsų Telegram grupes.
 
-**Available Commands:**
-• `/help` - Show all commands
-• `/rules` - Display group rules
-• `/xp` - Check your experience points
-• `/leaderboard` - Show XP leaderboard
-• `/invites` - Check your invite statistics
+**Galimi Veiksmai:**
+• `/pagalba` - Rodyti visas komandas
+• `/taisykles` - Rodyti grupės taisykles
+• `/xp` - Patikrinti savo patirties taškus
+• `/lyderiai` - Rodyti XP lyderių lentelę
+• `/kvietimai` - Patikrinti kvietimų statistiką
 
-**Admin Commands:**
-• `/ban` - Ban a user
-• `/kick` - Kick a user  
-• `/mute` - Mute a user
-• `/warn` - Warn a user
-• `/setrules` - Set group rules
-• `/setwelcome` - Set welcome message
+**Administratoriaus Komandos:**
+• `/uzblokuoti` - Užblokuoti vartotoją
+• `/ismesti` - Išmesti vartotoją  
+• `/nutildyti` - Nutildyti vartotoją
+• `/ispeti` - Įspėti vartotoją
+• `/nustatyti_taisykles` - Nustatyti grupės taisykles
+• `/nustatyti_pasisveikinima` - Nustatyti pasisveikinimo žinutę
 
-Add me to your group and make me an admin to get started! 🚀
+Pridėkite mane į savo grupę ir padarykite administratoriumi! 🚀
         """
         
         await update.message.reply_text(welcome_text, parse_mode='Markdown')
@@ -49,34 +49,34 @@ Add me to your group and make me an admin to get started! 🚀
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handle /help command"""
         help_text = """
-🔧 **Tvarkdarys Bot Commands**
+🔧 **Tvarkdarys Bot Komandos**
 
-**General Commands:**
-• `/rules` - View group rules
-• `/xp` - Check your XP points
-• `/leaderboard` - Top 10 XP users
-• `/invites` - Your invite statistics
+**Bendros Komandos:**
+• `/taisykles` - Peržiūrėti grupės taisykles
+• `/xp` - Patikrinti savo XP taškus
+• `/lyderiai` - Top 10 XP vartotojų
+• `/kvietimai` - Jūsų kvietimų statistika
 
-**Moderation (Admin Only):**
-• `/ban <user>` - Ban user from group
-• `/kick <user>` - Kick user from group
-• `/unban <user>` - Unban user
-• `/mute <user> [minutes]` - Mute user (default: 60 min)
-• `/unmute <user>` - Unmute user
-• `/warn <user> [reason]` - Warn user
-• `/warnings <user>` - Check user warnings
+**Moderavimas (Tik Administratoriams):**
+• `/užblokuoti <vartotojas>` - Užblokuoti vartotoją iš grupės
+• `/išmesti <vartotojas>` - Išmesti vartotoją iš grupės
+• `/atblokuoti <vartotojas>` - Atblokuoti vartotoją
+• `/nutildyti <vartotojas> [minutės]` - Nutildyti vartotoją (numatyta: 60 min)
+• `/atkurti_balsą <vartotojas>` - Atkurti vartotojo balsą
+• `/įspėti <vartotojas> [priežastis]` - Įspėti vartotoją
+• `/įspėjimai <vartotojas>` - Patikrinti vartotojo įspėjimus
 
-**Settings (Admin Only):**
-• `/setrules <rules>` - Set group rules
-• `/setwelcome <message>` - Set welcome message
-• `/settings` - View group settings
+**Nustatymai (Tik Administratoriams):**
+• `/nustatyti_taisykles <taisyklės>` - Nustatyti grupės taisykles
+• `/nustatyti_pasisveikinimą <žinutė>` - Nustatyti pasisveikinimo žinutę
+• `/nustatymai` - Peržiūrėti grupės nustatymus
 
-**XP System:**
-Earn 1 XP per message (1 minute cooldown)
-Track engagement and compete on leaderboards!
+**XP Sistema:**
+Gaukite 1 XP už žinutę (1 minutės pauze)
+Sekite aktyvumą ir varžykitės lyderių lentelėje!
 
-**Invite Tracking:**
-Monitor who invites new members and track statistics.
+**Kvietimų Sekimas:**
+Stebėkite, kas kviečia naujus narius ir sekite statistiką.
         """
         
         await update.message.reply_text(help_text, parse_mode='Markdown')
@@ -90,13 +90,13 @@ Monitor who invites new members and track statistics.
         
         if not rules:
             rules_text = """
-📋 **Group Rules**
+📋 **Grupės Taisyklės**
 
-No specific rules have been set yet.
-Contact an administrator to set up group rules.
+Dar nėra nustatytų specifinių taisyklių.
+Susisiekite su administratoriumi, kad nustatytų grupės taisykles.
             """
         else:
-            rules_text = "📋 **Group Rules**\n\n"
+            rules_text = "📋 **Grupės Taisyklės**\n\n"
             for i, rule in enumerate(rules, 1):
                 rules_text += f"{i}. {rule}\n"
         

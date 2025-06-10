@@ -95,15 +95,15 @@ class XPSystem:
         else:
             last_xp_time = "Never"
         
-        xp_text = f"🏆 **XP Status**\n\n"
-        xp_text += f"**User:** {target_user.first_name}"
+        xp_text = f"🏆 **XP Būsena**\n\n"
+        xp_text += f"**Vartotojas:** {target_user.first_name}"
         if hasattr(target_user, 'username') and target_user.username:
             xp_text += f" (@{target_user.username})"
-        xp_text += f"\n**Level:** {current_level}"
+        xp_text += f"\n**Lygis:** {current_level}"
         xp_text += f"\n**XP:** {user_data.xp:,}"
-        xp_text += f"\n**Rank:** #{rank} of {len(self.storage.users)}"
-        xp_text += f"\n**Next Level:** {xp_needed} XP needed"
-        xp_text += f"\n**Last XP:** {last_xp_time}"
+        xp_text += f"\n**Reitingas:** #{rank} iš {len(self.storage.users)}"
+        xp_text += f"\n**Kitas Lygis:** reikia {xp_needed} XP"
+        xp_text += f"\n**Paskutinis XP:** {last_xp_time}"
         
         # Progress bar
         progress = min(100, int((user_data.xp % 100) * 100 / 100))

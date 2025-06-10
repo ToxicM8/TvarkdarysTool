@@ -50,28 +50,44 @@ class TvarkdaryBot:
         """Setup all command and message handlers"""
         app = self.application
         
-        # Command handlers
+        # Command handlers - English and Lithuanian
         app.add_handler(CommandHandler("start", self.command_handlers.start_command))
+        app.add_handler(CommandHandler("pradeti", self.command_handlers.start_command))
         app.add_handler(CommandHandler("help", self.command_handlers.help_command))
+        app.add_handler(CommandHandler("pagalba", self.command_handlers.help_command))
         app.add_handler(CommandHandler("rules", self.command_handlers.rules_command))
+        app.add_handler(CommandHandler("taisykles", self.command_handlers.rules_command))
         app.add_handler(CommandHandler("setrules", self.command_handlers.set_rules_command))
+        app.add_handler(CommandHandler("nustatyti_taisykles", self.command_handlers.set_rules_command))
         app.add_handler(CommandHandler("xp", self.xp_system.check_xp_command))
         app.add_handler(CommandHandler("leaderboard", self.xp_system.leaderboard_command))
+        app.add_handler(CommandHandler("lyderiai", self.xp_system.leaderboard_command))
         app.add_handler(CommandHandler("invites", self.invite_tracker.check_invites_command))
+        app.add_handler(CommandHandler("kvietimai", self.invite_tracker.check_invites_command))
         app.add_handler(CommandHandler("invitestats", self.invite_tracker.invite_stats_command))
+        app.add_handler(CommandHandler("kvietu_statistika", self.invite_tracker.invite_stats_command))
         
-        # Moderation commands
+        # Moderation commands - English and Lithuanian
         app.add_handler(CommandHandler("ban", self.moderation_handlers.ban_command))
+        app.add_handler(CommandHandler("uzblokuoti", self.moderation_handlers.ban_command))
         app.add_handler(CommandHandler("kick", self.moderation_handlers.kick_command))
+        app.add_handler(CommandHandler("ismesti", self.moderation_handlers.kick_command))
         app.add_handler(CommandHandler("unban", self.moderation_handlers.unban_command))
+        app.add_handler(CommandHandler("atblokuoti", self.moderation_handlers.unban_command))
         app.add_handler(CommandHandler("mute", self.moderation_handlers.mute_command))
+        app.add_handler(CommandHandler("nutildyti", self.moderation_handlers.mute_command))
         app.add_handler(CommandHandler("unmute", self.moderation_handlers.unmute_command))
+        app.add_handler(CommandHandler("atkurti_balsa", self.moderation_handlers.unmute_command))
         app.add_handler(CommandHandler("warn", self.moderation_handlers.warn_command))
+        app.add_handler(CommandHandler("ispeti", self.moderation_handlers.warn_command))
         app.add_handler(CommandHandler("warnings", self.moderation_handlers.check_warnings_command))
+        app.add_handler(CommandHandler("ispejimai", self.moderation_handlers.check_warnings_command))
         
-        # Admin commands
+        # Admin commands - English and Lithuanian
         app.add_handler(CommandHandler("setwelcome", self.command_handlers.set_welcome_command))
+        app.add_handler(CommandHandler("nustatyti_pasisveikinima", self.command_handlers.set_welcome_command))
         app.add_handler(CommandHandler("settings", self.command_handlers.settings_command))
+        app.add_handler(CommandHandler("nustatymai", self.command_handlers.settings_command))
         
         # Message handlers
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.xp_system.handle_message))
@@ -90,7 +106,7 @@ class TvarkdaryBot:
             # Get custom welcome message or use default
             welcome_msg = self.storage.get_welcome_message(chat_id)
             if not welcome_msg:
-                welcome_msg = f"Welcome to the chat, {user.mention_html()}! 🎉\n\nPlease read our rules with /rules command."
+                welcome_msg = f"Sveiki atvykę į pokalbį, {user.mention_html()}! 🎉\n\nPrašome perskaityti taisykles naudojant /taisykles komandą."
             else:
                 welcome_msg = welcome_msg.replace("{user}", user.mention_html())
             
