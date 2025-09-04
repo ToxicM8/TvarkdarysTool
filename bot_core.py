@@ -20,7 +20,6 @@ from config import BotConfig
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
-    handlers=[logging.FileHandler('tvarkdarys.log'), logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
 
@@ -174,10 +173,8 @@ class TvarkdaryBot:
         except Exception:
             pass
 
+
 def build_application() -> Application:
-    """
-    Sukuria ir grąžina PTB Application su visais tavo handleriais.
-    NEPaleidžia pollingo — tam turėsim Flask webhook startą.
-    """
+    """Sukuria ir grąžina PTB Application su VISAIS tavo handleriais (be pollingo)."""
     bot = TvarkdaryBot()
     return bot.application
