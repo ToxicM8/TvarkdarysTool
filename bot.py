@@ -2,7 +2,6 @@
 """Tvarkdarys - Telegram Moderation Bot"""
 
 import logging
-from keep_alive import keep_alive
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ChatMemberHandler
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -139,7 +138,7 @@ class TvarkdaryBot:
         except Exception as e:
             await context.bot.send_message(chat_id=chat.id, text=f"⚠️ Nepavyko užbaninti: {e}")
 
-    # --- welcome / unknown / error / run ---
+    # --- welcome / unknown / error ---
     async def _handle_welcome(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat = update.effective_chat
         if not chat or chat.id not in self.config.allowed_chats:
@@ -157,7 +156,6 @@ class TvarkdaryBot:
     async def _unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat = update.effective_chat
         if chat and chat.id not in self.config.allowed_chats and chat.type != 'private':
-            # jei komandą rašo kitam chate – sakom, kad nedirbam
             await context.bot.send_message(chat_id=chat.id, text="❌ Čia aš nedirbu.")
             return
         await context.bot.send_message(
@@ -176,13 +174,10 @@ class TvarkdaryBot:
         except Exception:
             pass
 
-    def run(self):
-        self.application.run_polling(allowed_updates=["message", "chat_member", "callback_query"])
-
-def main():
-    keep_alive()
+def build_application() -> Application:
+    """
+    Sukuria ir grąžina PTB Application su visais tavo handleriais.
+    NEPaleidžia pollingo — tam turėsim Flask webhook startą.
+    """
     bot = TvarkdaryBot()
-    bot.run()
-
-if __name__ == '__main__':
-    main()
+    return bot.application
