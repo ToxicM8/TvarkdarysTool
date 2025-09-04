@@ -5,21 +5,17 @@ from flask import Flask, jsonify, request
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-# ==== Env
+# ==== ENV ====
 BOT_TOKEN = os.environ["BOT_TOKEN"]
-SERVICE_URL = os.environ.get("SERVICE_URL", "")
 WEBHOOK_SECRET = os.environ["WEBHOOK_SECRET"]
+SERVICE_URL = os.environ.get("SERVICE_URL", "").rstrip("/")  # pvz. https://tvarkdarys-tool-xxxx.run.app
 
-# ==== PTB application (v20+)
-application: Application = (
-    Application.builder()
-    .token(BOT_TOKEN)
-    .build()
-)
+# ==== PTB app ====
+application: Application = Application.builder().token(BOT_TOKEN).build()
 
-# -- paprasti handleriai testui
+# — testiniai handleriai (pasitikrinimui) —
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ Botas gyvas!")
+    await update.message.reply_text("✅ Botas gyvas! (/start OK)")
 
 async def ping_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("pong")
@@ -27,47 +23,49 @@ async def ping_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 application.add_handler(CommandHandler("start", start_cmd))
 application.add_handler(CommandHandler("ping", ping_cmd))
 
-# ==== Flask app (čia ieško Gunicorn, bet mes tiesiogiai paleidžiam su python)
+# ==== Flask ====
 app = Flask(__name__)
-_loop = asyncio.new_event_loop()
 
+# atskiras event loop PTB aplikacijai
+_loop = asyncio.new_event_loop()
 def _run_loop():
     asyncio.set_event_loop(_loop)
     _loop.run_forever()
-
-# Paleidžiam atskirą event loop giją ir startuojam PTB
 threading.Thread(target=_run_loop, daemon=True).start()
+
+# startinam PTB ant _loop
 asyncio.run_coroutine_threadsafe(application.initialize(), _loop)
 asyncio.run_coroutine_threadsafe(application.start(), _loop)
 
-# ==== Healthcheck
+# ---- Healthcheck (Cloud Run tikrina /) ----
 @app.get("/")
 def index():
-    return jsonify(ok=True, service="tvarkdarys", has_token=bool(BOT_TOKEN))
+    return jsonify(ok=True, service="tvarkdarys", has_service_url=bool(SERVICE_URL))
 
-# ==== Webhook nustatyti
+# ---- Set webhook (patogu po deploy) ----
 @app.get(f"/set/{WEBHOOK_SECRET}")
 def set_webhook():
     if not SERVICE_URL:
-        return jsonify(ok=False, error="SERVICE_URL missing")
+        return jsonify(ok=False, error="SERVICE_URL env not set"), 400
     url = f"{SERVICE_URL}/webhook/{WEBHOOK_SECRET}"
-    asyncio.run_coroutine_threadsafe(
-        application.bot.set_webhook(url), _loop
-    )
-    return jsonify(ok=True, webhook_url=url)
+    fut = asyncio.run_coroutine_threadsafe(application.bot.set_webhook(url), _loop)
+    try:
+        fut.result(timeout=15)
+        return jsonify(ok=True, url=url)
+    except Exception as e:
+        return jsonify(ok=False, error=str(e)), 500
 
-# ==== Webhook endpointas
+# ---- Tikras Telegram webhook endpointas ----
 @app.post(f"/webhook/{WEBHOOK_SECRET}")
 def webhook():
     data = request.get_json(force=True, silent=True)
     if not data:
-        return jsonify(ok=False)
-    asyncio.run_coroutine_threadsafe(
-        application.update_queue.put(Update.de_json(data, application.bot)), _loop
-    )
-    return jsonify(ok=True)
+        return "no data", 400
+    update = Update.de_json(data, application.bot)
+    asyncio.run_coroutine_threadsafe(application.process_update(update), _loop)
+    return "ok", 200
 
-# ==== Main
+# ---- Lokalinis paleidimas (Cloud Run irgi gerbia PORT) ----
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", "8080"))
     app.run(host="0.0.0.0", port=port)
