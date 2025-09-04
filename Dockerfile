@@ -15,4 +15,4 @@ COPY . .
 ENV PORT=8080
 
 # ---- Run (gunicorn ieško app objekto iš main:app)
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "main:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "bot:app"]
