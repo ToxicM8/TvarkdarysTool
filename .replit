@@ -1,27 +1,9 @@
+language = "python"
+run = "poetry run python bot.py"
 modules = ["python-3.11"]
 
 [nix]
-channel = "stable-24_05"
 
-[workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Tvarkdarys Bot"
-
-[[workflows.workflow]]
-name = "Tvarkdarys Bot"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pip install python-telegram-bot && python bot.py"
-
-[deployment]
-run = ["sh", "-c", "pip install python-telegram-bot && python bot.py"]
+[[ports]]
+localPort = 8080
+externalPort = 80

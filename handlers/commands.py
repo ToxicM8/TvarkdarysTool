@@ -5,188 +5,114 @@ Basic command handlers for Tvarkdarys bot
 import logging
 from telegram import Update
 from telegram.ext import ContextTypes
-from utils.permissions import admin_required, group_only, rate_limit
+from utils.permissions import admin_required, group_only, rate_limit, group_allowed
 from utils.storage import BotStorage
+from config import BotConfig
 
 logger = logging.getLogger(__name__)
 
 class CommandHandlers:
-    """Handler class for basic bot commands"""
-    
     def __init__(self, storage: BotStorage):
         self.storage = storage
-    
+        self.owner_id = BotConfig().owner_id
+
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /start command"""
-        user = update.effective_user
-        
-        welcome_text = f"""
-🤖 **Tvarkdarys Bot** - Telegram Moderavimo Asistentas
+        text = (
+            "Kas driso mane pažadinti? 😈 \n"
+            "🔥 Pragaras tavęs laukia."
+        )
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode='Markdown')
 
-Sveiki {user.first_name}! Aš esu čia, kad padėčiau tvarkyti jūsų Telegram grupes.
-
-**Galimi Veiksmai:**
-• `/pagalba` - Rodyti visas komandas
-• `/taisykles` - Rodyti grupės taisykles
-• `/xp` - Patikrinti savo patirties taškus
-• `/lyderiai` - Rodyti XP lyderių lentelę
-• `/kvietimai` - Patikrinti kvietimų statistiką
-
-**Administratoriaus Komandos:**
-• `/uzblokuoti` - Užblokuoti vartotoją
-• `/ismesti` - Išmesti vartotoją  
-• `/nutildyti` - Nutildyti vartotoją
-• `/ispeti` - Įspėti vartotoją
-• `/nustatyti_taisykles` - Nustatyti grupės taisykles
-• `/nustatyti_pasisveikinima` - Nustatyti pasisveikinimo žinutę
-
-Pridėkite mane į savo grupę ir padarykite administratoriumi! 🚀
-        """
-        
-        await update.message.reply_text(welcome_text, parse_mode='Markdown')
-    
-    @rate_limit(lambda self: self.storage, 5)
-    async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /help command"""
-        help_text = """
-🔧 **Tvarkdarys Bot Komandos**
-
-**Bendros Komandos:**
-• `/taisykles` - Peržiūrėti grupės taisykles
-• `/xp` - Patikrinti savo XP taškus
-• `/lyderiai` - Top 10 XP vartotojų
-• `/kvietimai` - Jūsų kvietimų statistika
-
-**Moderavimas (Tik Administratoriams):**
-• `/uzblokuoti <vartotojas>` - Užblokuoti vartotoją iš grupės
-• `/ismesti <vartotojas>` - Išmesti vartotoją iš grupės
-• `/atblokuoti <vartotojas>` - Atblokuoti vartotoją
-• `/nutildyti <vartotojas> [minutės]` - Nutildyti vartotoją (numatyta: 60 min)
-• `/atkurti_balsa <vartotojas>` - Atkurti vartotojo balsą
-• `/ispeti <vartotojas> [priežastis]` - Įspėti vartotoją
-• `/ispejimai <vartotojas>` - Patikrinti vartotojo įspėjimus
-
-**Nustatymai (Tik Administratoriams):**
-• `/nustatyti_taisykles <taisyklės>` - Nustatyti grupės taisykles
-• `/nustatyti_pasisveikinima <žinutė>` - Nustatyti pasisveikinimo žinutę
-• `/nustatymai` - Peržiūrėti grupės nustatymus
-
-**XP Sistema:**
-Gaukite 1 XP už žinutę (1 minutės pauze)
-Sekite aktyvumą ir varžykitės lyderių lentelėje!
-
-**Kvietimų Sekimas:**
-Stebėkite, kas kviečia naujus narius ir sekite statistiką.
-        """
-        
-        await update.message.reply_text(help_text, parse_mode='Markdown')
-    
+    @rate_limit(3)
     @group_only
-    @rate_limit(lambda self: self.storage, 3)
+    @group_allowed
+    async def pagalba_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        text = (
+            "<b>🧠 TVARKDARYS PAGALBA</b>\n\n"
+
+            "<b>🎮 XP sistema:</b>\n"
+            "• <code>/xp</code> – Patikrink savo XP ir Level\n"
+            "• <code>/xpinfo</code> – Kaip veikia XP sistema\n"
+            "• <code>/lyderiai</code> – TOP veikėjai\n\n"
+
+            "<b>👮 Moderacija:</b>\n"
+            "• <code>/ban</code>, <code>/kick</code>, <code>/unban</code>\n"
+            "• <code>/mute</code>, <code>/unmute</code>, <code>/warn</code>\n"
+            "• <code>/ispejimai</code> – Vartotojo įspėjimai\n\n"
+
+            "<b>🎭 Rolės:</b>\n"
+            "• <code>/mergina</code> – Pasirinkti 👩 Mergina\n"
+            "• <code>/vaikinas</code> – Pasirinkti 🧑 Vaikinas\n"
+            "• <code>/kas</code> [reply | user_id] – Parodo pasirinktą rolę\n\n"
+
+            "<b>🚩 Report:</b>\n"
+            "• <code>/report</code> [reply | <i>user_id</i>] [priežastis] – Pranešti adminams\n\n"
+
+            "<b>📜 Kiti dalykai:</b>\n"
+            "• <code>/taisykles</code> – Pragaro įsakymai\n"
+            "• <code>/pagalba</code> – Na va, radai ją 😈\n"
+        )
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode="HTML")
+
+    @group_only
+    @group_allowed
     async def rules_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /rules command"""
-        chat_id = update.effective_chat.id
-        rules = self.storage.get_rules(chat_id)
-        
-        if not rules:
-            rules_text = """
-📋 **Grupės Taisyklės**
+        text = (
+            "<b>📜 Grupės Taisyklės:</b>\n\n"
+            "1. ⛔ Jokios nelegalios veiklos. Narkotikų reklama = banas. Nediskutuojama.\n"
+            "2. 📵 Telegram grupių reklama – tabu. Kelk YouTube/IG/memus, bet ne t.me linkus. Banas automatas įkrautas.\n"
+            "3. 💬 Gerbk kitus, bet nepersistenk. Sarkazmas – gerai. Įžeidinėjimai – pro duris.\n"
+            "4. 🔞 Daliniesi? Būk sąmoningas. Nuogumas – taip. Nepilnamečiai ar iškrypimai – ne.\n"
+            "5. 📣 Flood’ini be turinio? XP negausi, geriausiu atveju ignoras, blogiausiu – mute.\n"
+            "6. 🕵️‍♀️ Report’ink su /report – staff’ai viską mato, nepiktnaudžiauk.\n"
+            "7. 🎭 Rolė: /mergina, /vaikinas, /kas.\n"
+            "8. 👑 Demonas – paskutinis žodis."
+        )
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode='HTML')
 
-Dar nėra nustatytų specifinių taisyklių.
-Susisiekite su administratoriumi, kad nustatytų grupės taisykles.
-            """
-        else:
-            rules_text = "📋 **Grupės Taisyklės**\n\n"
-            for i, rule in enumerate(rules, 1):
-                rules_text += f"{i}. {rule}\n"
-        
-        await update.message.reply_text(rules_text, parse_mode='Markdown')
-    
+    @rate_limit(3)
     @group_only
-    @admin_required
-    async def set_rules_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /setrules command - Admin only"""
-        chat_id = update.effective_chat.id
-        
-        if not context.args:
-            await update.message.reply_text(
-                "❌ Please provide rules to set.\n\n"
-                "**Usage:** `/setrules Rule 1 | Rule 2 | Rule 3`\n"
-                "Separate multiple rules with ' | '",
-                parse_mode='Markdown'
-            )
-            return
-        
-        # Join all arguments and split by |
-        rules_text = " ".join(context.args)
-        rules = [rule.strip() for rule in rules_text.split('|') if rule.strip()]
-        
-        if not rules:
-            await update.message.reply_text("❌ No valid rules provided.")
-            return
-        
-        self.storage.set_rules(chat_id, rules)
-        
-        rules_display = "✅ **Rules updated successfully!**\n\n"
-        for i, rule in enumerate(rules, 1):
-            rules_display += f"{i}. {rule}\n"
-        
-        await update.message.reply_text(rules_display, parse_mode='Markdown')
-        logger.info(f"Rules updated for chat {chat_id} by user {update.effective_user.id}")
-    
-    @group_only
-    @admin_required
+    @group_allowed
     async def set_welcome_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /setwelcome command - Admin only"""
+        """Tik owner'is gali naudoti /setwelcome"""
         chat_id = update.effective_chat.id
-        
+        user = update.effective_user
+
+        if not user or user.id != self.owner_id:
+            await context.bot.send_message(chat_id=chat_id, text="❌ Čia tik šeimininkui, bičiuk.")
+            return
+
         if not context.args:
-            await update.message.reply_text(
-                "❌ Please provide a welcome message.\n\n"
-                "**Usage:** `/setwelcome Welcome to our group, {user}!`\n"
-                "Use `{user}` to mention the new member.",
-                parse_mode='Markdown'
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=(
+                    "❌ Įrašyk pasisveikinimo žinutę.\n\n"
+                    "<b>Naudojimas:</b> <code>/setwelcome Sveiki atvykę, {user}</code>\n"
+                    "<i>{user}</i> bus pakeistas į naujo nario paminėjimą."
+                ),
+                parse_mode='HTML'
             )
             return
-        
-        welcome_message = " ".join(context.args)
-        self.storage.set_welcome_message(chat_id, welcome_message)
-        
-        await update.message.reply_text(
-            f"✅ **Welcome message updated!**\n\n"
-            f"Preview: {welcome_message.replace('{user}', update.effective_user.mention_html())}",
+
+        welcome_msg = " ".join(context.args)
+        self.storage.set_welcome_message(chat_id, welcome_msg)
+
+        preview = welcome_msg.replace("{user}", user.mention_html())
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=f"✅ Nustatyta pasisveikinimo žinutė:\n\n{preview}",
             parse_mode='HTML'
         )
-        logger.info(f"Welcome message updated for chat {chat_id} by user {update.effective_user.id}")
-    
+
     @group_only
-    @admin_required
-    async def settings_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handle /settings command - Admin only"""
-        chat_id = update.effective_chat.id
-        group_settings = self.storage.get_group_settings(chat_id)
-        
-        # Count statistics
-        total_users = len(self.storage.users)
-        banned_count = len(self.storage.banned_users.get(chat_id, []))
-        muted_count = len(self.storage.muted_users.get(chat_id, {}))
-        
-        settings_text = f"""
-⚙️ **Group Settings**
-
-**Rules:** {len(group_settings.rules)} rules set
-**Welcome Message:** {'✅ Set' if group_settings.welcome_message else '❌ Not set'}
-**Invite Links:** {len(group_settings.invite_links)} tracked
-
-**Statistics:**
-• Total Users: {total_users}
-• Banned Users: {banned_count}
-• Muted Users: {muted_count}
-
-**Commands Available:**
-• `/setrules` - Update group rules
-• `/setwelcome` - Set welcome message
-• Moderation commands: `/ban`, `/kick`, `/mute`, `/warn`
-        """
-        
-        await update.message.reply_text(settings_text, parse_mode='Markdown')
+    @group_allowed
+    async def xpinfo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        text = (
+            "<b>📈 XP sistema:</b>\n\n"
+            "• Kiekviena žinutė duoda <b>3 XP</b>\n"
+            "• <b>1 Level = 1000 XP</b>\n"
+            "• Maks. Level – 25 (2,500,000 XP)\n"
+            "• XP skirstomi tolygiai tarp lygių\n"
+            "• TOP – <code>/lyderiai</code>"
+        )
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=text, parse_mode='HTML')

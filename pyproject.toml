@@ -1,9 +1,15 @@
-[project]
-name = "repl-nix-workspace"
+[tool.poetry]
+name = "tvarkdarys"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.11"
-dependencies = [
-    "python-telegram-bot==20.8",
-    "telegram>=0.0.1",
-]
+description = ""
+authors = ["ToxicM8"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-telegram-bot = "^20.0"
+telegram = "^0.0.1"
+flask = "^3.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
