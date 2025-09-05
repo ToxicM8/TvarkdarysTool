@@ -1,71 +1,51 @@
 import os
-import asyncio
-import threading
-from flask import Flask, jsonify, request
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import Application
 
-# ==== ENV ====
-BOT_TOKEN = os.environ["BOT_TOKEN"]
-WEBHOOK_SECRET = os.environ["WEBHOOK_SECRET"]
-SERVICE_URL = os.environ.get("SERVICE_URL", "").rstrip("/")  # pvz. https://tvarkdarys-tool-xxxx.run.app
+# ====== Handlerių importai ======
+from handlers.commands import register_commands
+from handlers.moderation import register_moderation
+from handlers.invite_tracker import register_invite_tracker
+from handlers.antiflood import register_antiflood
+from handlers.report import register_report
+from handlers.roles import register_roles
+from handlers.xp_system import register_xp_system
 
-# ==== PTB app ====
-application: Application = Application.builder().token(BOT_TOKEN).build()
 
-# — testiniai handleriai (pasitikrinimui) —
-async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ Botas gyvas! (/start OK)")
+# ====== Config ======
+TOKEN = os.environ["BOT_TOKEN"]
+BASE_URL = os.environ["BASE_URL"]  # Pvz.: https://tvarkdarys-xxxx.a.run.app
+PORT = int(os.environ.get("PORT", "8080"))
+WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "slaptas_zodis")
 
-async def ping_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("pong")
 
-application.add_handler(CommandHandler("start", start_cmd))
-application.add_handler(CommandHandler("ping", ping_cmd))
+def build_app() -> Application:
+    """Sukuriam ir surišam visus handlerius į vieną appą."""
+    application = Application.builder().token(TOKEN).build()
 
-# ==== Flask ====
-app = Flask(__name__)
+    # registruojam tavo handlerių funkcijas
+    register_commands(application)
+    register_moderation(application)
+    register_invite_tracker(application)
+    register_antiflood(application)
+    register_report(application)
+    register_roles(application)
+    register_xp_system(application)
 
-# atskiras event loop PTB aplikacijai
-_loop = asyncio.new_event_loop()
-def _run_loop():
-    asyncio.set_event_loop(_loop)
-    _loop.run_forever()
-threading.Thread(target=_run_loop, daemon=True).start()
+    return application
 
-# startinam PTB ant _loop
-asyncio.run_coroutine_threadsafe(application.initialize(), _loop)
-asyncio.run_coroutine_threadsafe(application.start(), _loop)
 
-# ---- Healthcheck (Cloud Run tikrina /) ----
-@app.get("/")
-def index():
-    return jsonify(ok=True, service="tvarkdarys", has_service_url=bool(SERVICE_URL))
+def main():
+    app = build_app()
 
-# ---- Set webhook (patogu po deploy) ----
-@app.get(f"/set/{WEBHOOK_SECRET}")
-def set_webhook():
-    if not SERVICE_URL:
-        return jsonify(ok=False, error="SERVICE_URL env not set"), 400
-    url = f"{SERVICE_URL}/webhook/{WEBHOOK_SECRET}"
-    fut = asyncio.run_coroutine_threadsafe(application.bot.set_webhook(url), _loop)
-    try:
-        fut.result(timeout=15)
-        return jsonify(ok=True, url=url)
-    except Exception as e:
-        return jsonify(ok=False, error=str(e)), 500
+    # PTB startuoja savo aiohttp serverį webhook'ui
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path="webhook",
+        webhook_url=f"{BASE_URL}/webhook",
+        secret_token=WEBHOOK_SECRET,
+    )
 
-# ---- Tikras Telegram webhook endpointas ----
-@app.post(f"/webhook/{WEBHOOK_SECRET}")
-def webhook():
-    data = request.get_json(force=True, silent=True)
-    if not data:
-        return "no data", 400
-    update = Update.de_json(data, application.bot)
-    asyncio.run_coroutine_threadsafe(application.process_update(update), _loop)
-    return "ok", 200
 
-# ---- Lokalinis paleidimas (Cloud Run irgi gerbia PORT) ----
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "8080"))
-    app.run(host="0.0.0.0", port=port)
+    main()
