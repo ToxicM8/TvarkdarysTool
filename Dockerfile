@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY . .
 
 ENV PORT=8080
-CMD ["python", "bot_core.py"]
+CMD ["python", "bot.py"]
